@@ -15,12 +15,21 @@ from PIL import Image
 import numpy as np
 import imageio
 import matplotlib.pyplot as plt
+from tracers_analysis_function_ver1 import *
 
+'''
+Run mode:
+    run_mode == 1 : sigle run
+    run_mode == 2 : batch process
+'''
+
+# Script parameters:
+run_mode = 1
 
 # Set working directory
-run = 'test'
+run = 'trial1'
 w_dir = os.getcwd() # Set Python script location as w_dir
-w_dir = '/home/erri/Documents/morphological_approach/1_scripts/tracers_analysis'
+
 
 # Set parameters
 ndfi_thr = 150    # NDFI threshold [0/255]
@@ -32,24 +41,28 @@ L = 2 # photo length in meters [m]
 
 
 
+# List all available runs, depending on run_mode
 runs =[]
-for f in sorted(os.listdir(os.path.join(w_dir, 'input_images'))):
-    path = os.path.join(os.path.join(w_dir, 'input_images'), f)
-    if os.path.isdir(path) and not(f.startswith('_')):
-        runs = np.append(runs, f)
-        
-        
-runs = [run] # Comment to perform batch process over folder
+if run_mode==1:
+    runs = [run] # Comment to perform batch process over folder
+elif run_mode==2:
+    for f in sorted(os.listdir(os.path.join(w_dir, 'input_images'))):
+        path = os.path.join(os.path.join(w_dir, 'input_images'), f)
+        if os.path.isdir(path) and not(f.startswith('_')):
+            runs = np.append(runs, f)
+else:
+    pass
+
+###############################################################################
+# LOOP OVER RUNS
+###############################################################################
+
 for run in runs:
-    path_in = os.path.join(w_dir, 'input_images', run)
-    path_out = os.path.join(w_dir, 'output_images', run)
     
-    # Set directory
-    if os.path.exists(path_in):
-        pass
-    else:
-        os.mkdir(path_in)
-        
+    path_in = os.path.join(w_dir, 'input_images', run)
+    
+    # Create outputs script directory
+    path_out = os.path.join(w_dir, 'output_images', run)
     if os.path.exists(path_out):
         pass
     else:
@@ -64,7 +77,7 @@ for run in runs:
     conv.set_ylabel('NDFI [pixel]')
     # conv.set_yscale("log")
     
-    signal_array = np.zeros(6000)
+    
     # List input directory files
     files_tot = sorted(os.listdir(path_in))
     files = files_tot
@@ -75,8 +88,10 @@ for run in runs:
         # print()
     for file in sorted(files):
         path = os.path.join(path_in, file) # Build path
-        img = Image.open(path)    # Open image
+        img = Image.open(path) # Open image
+        img = img.rotate(180) # Rotate image
         img_array = np.asarray(img)    # Convert image in numpy array
+        signal_array = np.zeros(img_array.shape[1]) # Define the signal array
         # Extract RGB bands and convert as int32:
         band_red = img_array[:,:,0]    
         band_red = band_red.astype(np.int32)
@@ -123,7 +138,7 @@ for run in runs:
         
         
         # PLOT
-        # conv.plot(x, np.flip(count), lw=0.5, label=str(file))
+        conv.plot(x, np.flip(count), lw=0.5, label=str(file))
         
         conv.legend(fontsize=4)
         conv.plot(x, np.flip(count*(count<thr)), lw=0.5, label = str(file) + '_filt')
@@ -135,34 +150,34 @@ for run in runs:
     
   
             
-        # # PLOT
-        # fig2, (ax1, ax2, ax3) = plt.subplots(3, 1
-        #                                      #,sharex=True
-        #                                      )
-        # fig2.set_dpi(300)
+        # PLOT
+        fig2, (ax1, ax2, ax3) = plt.subplots(3, 1
+                                              #,sharex=True
+                                              )
+        fig2.set_dpi(300)
         
-        # ax1.imshow(img)
-        # ax1.axes.xaxis.set_ticks([])
-        # ax1.axes.yaxis.set_ticks([])
-        # ax1.set_ylabel('W = 0.6 m', fontsize = 8)
-        # ax1.set_title('Photo - '+ chart_name) #'+run)
-        # ax1.legend(fontsize=4)
+        ax1.imshow(img)
+        ax1.axes.xaxis.set_ticks([])
+        ax1.axes.yaxis.set_ticks([])
+        ax1.set_ylabel('W = 0.6 m', fontsize = 8)
+        ax1.set_title('Photo - '+ chart_name) #'+run)
+        ax1.legend(fontsize=4)
         
-        # ax2.imshow(img_ndfi_filt, cmap='Greens', interpolation = 'nearest')
-        # ax2.axes.xaxis.set_ticks([])
-        # ax2.axes.yaxis.set_ticks([])
-        # ax2.set_ylabel('W = 0.6 m', fontsize = 8)
-        # ax2.set_title('Filtered NDFI Photo - '+ chart_name) #'+run)
-        # ax2.legend(fontsize=4)
+        ax2.imshow(img_ndfi_filt, cmap='Greens', interpolation = 'nearest')
+        ax2.axes.xaxis.set_ticks([])
+        ax2.axes.yaxis.set_ticks([])
+        ax2.set_ylabel('W = 0.6 m', fontsize = 8)
+        ax2.set_title('Filtered NDFI Photo - '+ chart_name) #'+run)
+        ax2.legend(fontsize=4)
         
-        # ax3.plot(x, np.flip(count), lw=1, label=file)
-        # ax3.set_xlabel('Coordinata longitudinale [m]')
-        # ax3.set_ylabel('NDFI [-]')
-        # ax3.legend(fontsize=4)    
-        # fig2.tight_layout()
-        # plt.show()
+        ax3.plot(x, np.flip(count), lw=1, label=file)
+        ax3.set_xlabel('Coordinata longitudinale [m]')
+        ax3.set_ylabel('NDFI [-]')
+        ax3.legend(fontsize=4)    
+        fig2.tight_layout()
+        plt.show()
         
         
-    # plt.imshow(img_ndfi_filt, cmap='Greens', interpolation = 'nearest')
-    # plt.legend(fontsize=5)
-    # plt.show()
+    plt.imshow(img_ndfi_filt, cmap='Greens', interpolation = 'nearest')
+    plt.legend(fontsize=5)
+    plt.show()

@@ -16,51 +16,17 @@ import numpy as np
 import imageio
 import matplotlib.pyplot as plt
 
-# #richiamo matrice 1
-# mat_i, mat_i_path = 'DSC_3994_opt3_bool.txt', '/Users/chiarabonadimani/Desktop/prova_b/baricentro/output_images/pb6'
-# mat_ii, mat_ii_path = 'DSC_3998_opt3_bool.txt', '/Users/chiarabonadimani/Desktop/prova_b/baricentro/output_images/pb6'
+'''
+Run mode:
+    run_mode == 1 : sigle run
+    run_mode == 2 : batch process
+'''
 
-# lines = []
-# header = []
-        
-# with open(mat_i_path, 'r') as file:
-#     for line in file:
-#         lines.append(line)  # lines is a list. Each item is a row of the input file
-#     # Header extraction...
-#     for i in range(0, 7):
-#         header.append(lines[i])
-# # Header printing in a file txt called header.txt
-# # with open(path_out + '/' + mat_i + 'header.txt', 'w') as head:
-# #     head.writelines(header)
-            
-# mat_i = np.loadtxt(mat_i_path,
-#                           # delimiter=',',
-#                           skiprows=8
-#                           )
-# mat_ii = np.loadtxt(mat_ii_path,
-#                           # delimiter=',',
-#                           skiprows=8
-#                           )
-# arr_shape=min(mat_i.shape, mat_ii.shape)
-# dim_x, dim_y = mat_i.shape
-# matrice_somma= np.zeros(mat_i.shape)
-# for i in range (0, dim_x):
-#     for j in range (0, dim_y):
-#         matrice_somma=mat_ii - mat_i
-
-# def somma(mat_i,mat_ii):
-#     n=len(mat_i)
-    
-#     mm=creaZeri(n)
-#     for r in range (n):
-#         for c in range(n):
-#         mm[r][c]=mat_i[r][c]+mat_ii[r][c]
-            
-        
-
+# Script parameters:
+run_mode = 1
 
 # Set working directory
-run = 'pb12'
+run = 'trial1'
 w_dir = os.getcwd() # Set Python script location as w_dir
 
 
@@ -80,14 +46,27 @@ L = 1.975 # photo length in meters [m]
 
 
 
+# for f in sorted(os.listdir(os.path.join(w_dir, 'input_images'))):
+#     path = os.path.join(os.path.join(w_dir, 'input_images'), f)
+#     if os.path.isdir(path) and not(f.startswith('_')):
+#         runs = np.append(runs, f)
+
+# List all available runs, depending on run_mode
 runs =[]
-for f in sorted(os.listdir(os.path.join(w_dir, 'input_images'))):
-    path = os.path.join(os.path.join(w_dir, 'input_images'), f)
-    if os.path.isdir(path) and not(f.startswith('_')):
-        runs = np.append(runs, f)
-        
-        
-runs = [run] # Comment to perform batch process over folder
+if run_mode==1:
+    runs = [run] # Comment to perform batch process over folder
+elif run_mode==2:
+    for f in sorted(os.listdir(os.path.join(w_dir, 'input_images'))):
+        path = os.path.join(os.path.join(w_dir, 'input_images'), f)
+        if os.path.isdir(path) and not(f.startswith('_')):
+            runs = np.append(runs, f)
+else:
+    pass
+
+###############################################################################
+# LOOP OVER RUNS
+###############################################################################
+
 for run in runs:
     path_in = os.path.join(w_dir, 'input_images', run)
     path_out = os.path.join(w_dir, 'output_images', run)
